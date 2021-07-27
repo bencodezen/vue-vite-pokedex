@@ -9,6 +9,10 @@
       :number="pokemon.id"
     />
   </ul>
+  <button v-if="paginationStore.start > 0" @click="turnPreviousPage">
+    Previous Page
+  </button>
+  <button @click="turnNextPage">Next Page</button>
 </template>
 
 <script setup>
@@ -17,6 +21,21 @@ import PokedexCard from './components/PokedexCard.vue'
 
 const filterText = ref('')
 
+const paginationStore = reactive({
+  start: 0,
+  end: computed(() => paginationStore.start + 10)
+})
+
+const turnNextPage = () => {
+  paginationStore.start += 10
+  getPokedexEntries()
+}
+
+const turnPreviousPage = () => {
+  paginationStore.start -= 10
+  getPokedexEntries()
+}
+
 const pokemonStore = reactive({
   list: [],
   filteredList: computed(() =>
@@ -24,14 +43,22 @@ const pokemonStore = reactive({
   )
 })
 
-onMounted(async () => {
-  const pokeData = await fetch('/.netlify/functions/pokedex').then(response =>
-    response.json()
-  )
+const getPokedexEntries = async () => {
+  const pokeData = await fetch('/.netlify/functions/pokedex', {
+    method: 'POST',
+    body: JSON.stringify({
+      start: paginationStore.start,
+      end: paginationStore.end
+    })
+  }).then(response => response.json())
 
   console.log({ pokeData })
 
   pokemonStore.list = pokeData
+}
+
+onMounted(() => {
+  getPokedexEntries()
 })
 </script>
 
