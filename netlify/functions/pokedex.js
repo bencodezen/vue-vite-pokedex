@@ -22,10 +22,15 @@ exports.handler = async function (event, context) {
       })
     : []
 
+  const pokedexLength = pokeData.length
+
   finalResults = pokeData.slice(start, end)
 
   return {
     statusCode: 200,
-    body: JSON.stringify(finalResults)
+    body: JSON.stringify({
+      limit: pokedexLength,
+      results: finalResults
+    })
   }
 }

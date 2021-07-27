@@ -12,7 +12,12 @@
   <button v-if="paginationStore.start > 0" @click="turnPreviousPage">
     Previous Page
   </button>
-  <button @click="turnNextPage">Next Page</button>
+  <button
+    v-if="paginationStore.end <= paginationStore.limit"
+    @click="turnNextPage"
+  >
+    Next Page
+  </button>
 </template>
 
 <script setup>
@@ -23,7 +28,8 @@ const filterText = ref('')
 
 const paginationStore = reactive({
   start: 0,
-  end: computed(() => paginationStore.start + 10)
+  end: computed(() => paginationStore.start + 10),
+  limit: 1000
 })
 
 const turnNextPage = () => {
@@ -52,9 +58,8 @@ const getPokedexEntries = async () => {
     })
   }).then(response => response.json())
 
-  console.log({ pokeData })
-
-  pokemonStore.list = pokeData
+  pokemonStore.list = pokeData.results
+  paginationStore.limit = pokeData.limit
 }
 
 onMounted(() => {
